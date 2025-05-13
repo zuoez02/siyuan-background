@@ -15,6 +15,12 @@ Desktop (linux/windows/macos)
 
 ## Usage (example)
 
+Install the library with your favorite node package manager(npm/pnpm/yarn/...) in your plugin workspace.
+
+```bash
+npm install -D siyuan-background
+```
+
 Check the example plugin here: [siyuan-plugin-background-test](https://github.com/zuoez02/siyuan-plugin-background-test)
 
 Import this lib in your SiYuan plugin and call the ProcessManager to init your process.js.
