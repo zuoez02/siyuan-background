@@ -13,7 +13,9 @@ Desktop (linux/windows/macos)
 - Communication with plugin in foreground.
 - Logger to Console in foreground.
 
-## Usage
+## Usage (example)
+
+Check the example plugin here: [siyuan-plugin-background-test](https://github.com/zuoez02/siyuan-plugin-background-test)
 
 Import this lib in your SiYuan plugin and call the ProcessManager to init your process.js.
 
