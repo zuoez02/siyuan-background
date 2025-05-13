@@ -17,34 +17,36 @@ export class ProcessManager {
 
     currentLogger: PluginLogger = null;
 
-    constructor(private plugin: Plugin) {
+    name: string;
 
+    constructor(private readonly plugin: Plugin) {
+        this.name = plugin.name;
     }
 
-    unload(name: string) {
-        this.processController.unload(name);
-        this.backendPlugins.find(p => p.name === name).running = false;
+    public unload() {
+        this.processController.unload(this.name);
+        this.backendPlugins.find(p => p.name === this.name).running = false;
     }
 
-    unloadAll() {
+    public unloadAll() {
         this.processController.unloadAll();
         this.backendPlugins.forEach((p) => p.running = false);
     }
 
-    toggleLogger(name: string) {
+    public toggleLogger() {
         if (this.currentLogger) {
             console.log("[BackendPlugin Logger] Exist Logger closed");
             this.currentLogger.stop();
             this.currentLogger = null;
         }
-        const logger = this.backendPlugins.find(p => p.name === name).logger;
+        const logger = this.backendPlugins.find(p => p.name === this.name).logger;
         debug("logger", logger);
         if (!logger) {
             debug("empty logger");
             this.currentLogger = null;
             return;
         }
-        console.log('[BackendPlugin logger] Switch to logger for:' + name);
+        console.log('[BackendPlugin logger] Switch to logger for:' + this.name);
         this.currentLogger = logger;
         logger.start();
     }
@@ -53,15 +55,15 @@ export class ProcessManager {
         this.backendPlugins.find(p => p.name === name).running = running;
     }
 
-    async reload(name: string) {
-        this.processController.unload(name);
-        this.backendPlugins.find(p => p.name === name).running = false;
-        const script = await this.getPluginScript(name);
+    public async reload() {
+        this.processController.unload(this.name);
+        this.backendPlugins.find(p => p.name === this.name).running = false;
+        const script = await this.getPluginScript();
         if (!script) {
             return;
         }
-        this.processController.load(name, script);
-        this.backendPlugins.find(p => p.name === name).running = true;
+        this.processController.load(this.name, script);
+        this.backendPlugins.find(p => p.name === this.name).running = true;
     }
 
     getBackendPlugins() {
@@ -94,21 +96,27 @@ export class ProcessManager {
             return;
         }
 
+        console.log(this.processController)
+
         if (this.processController) {
             const runningProcesses = this.processController.getProcesses();
             for (const p of runningProcesses) {
                 this.backendPlugins.push({ name: p, running: true, enabled: false })
             }
             for (const plugin of this.plugin.app.plugins) {
+                if (plugin.name !== this.name) {
+                    continue;
+                }
                 if (this.processController.has(plugin.name)) {
                     this.backendPlugins.find((v) => v.name === plugin.name).enabled = true;
                     debug("[initElectron] already exist: ", plugin.name);
                     continue;
                 }
-                const script = await this.getPluginScript(plugin.name);
+                const script = await this.getPluginScript();
                 if (script) {
                     this.backendPlugins.push({ name: plugin.name, running: true, enabled: true })
                     debug("[initElectron] load:", plugin.name);
+                    console.log(script, plugin.name)
                     this.processController.load(plugin.name, script);
                 }
             }
@@ -159,10 +167,10 @@ export class ProcessManager {
         }
     }
 
-    async getPluginScript(name: string): Promise<string | null> {
+    async getPluginScript(): Promise<string | null> {
         return fetch('/api/file/getFile', {
             method: 'POST',
-            body: JSON.stringify({ path: `/data/plugins/${name}/process.js` })
+            body: JSON.stringify({ path: `/data/plugins/${this.name}/process.js` })
         }).then((res) => {
             if (res.status === 200) {
                 return res.text();

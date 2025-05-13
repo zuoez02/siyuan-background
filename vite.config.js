@@ -31,51 +31,52 @@ export default defineConfig({
         // 或是用来指定是应用哪种混淆器
         // boolean | 'terser' | 'esbuild'
         // 不压缩，用于调试
-        minify: true,
+        minify: false,
 
         lib: {
             // Could also be a dictionary or array of multiple entry points
-            entry: [resolve(__dirname, "src/index.ts")],
+            entry: resolve(__dirname, "src/index.ts"),
             // the proper extensions will be added
-            fileName: "index",
-            formats: ["cjs"],
+            name: 'siyuan-background',
+            fileName: (format) => `siyuan-background.${format}.js`,
+            formats: ["cjs", "es"],
         },
         rollupOptions: {
-        //     plugins: [
-        //         ...(
-        //             isWatch ? [
-        //                 livereload(devDistDir),
-        //                 {
-        //                     //监听静态资源文件
-        //                     name: 'watch-external',
-        //                     async buildStart() {
-        //                         const files = await fg([
-        //                             'public/i18n/**',
-        //                             './README*.md',
-        //                             './plugin.json'
-        //                         ]);
-        //                         for (let file of files) {
-        //                             this.addWatchFile(file);
-        //                         }
-        //                     }
-        //                 }
-        //             ] : [
-        //                 zipPack({
-        //                     inDir: './dist',
-        //                     outDir: './',
-        //                     outFileName: 'package.zip'
-        //                 })
-        //             ]
-        //         )
-        //     ],
+            //     plugins: [
+            //         ...(
+            //             isWatch ? [
+            //                 livereload(devDistDir),
+            //                 {
+            //                     //监听静态资源文件
+            //                     name: 'watch-external',
+            //                     async buildStart() {
+            //                         const files = await fg([
+            //                             'public/i18n/**',
+            //                             './README*.md',
+            //                             './plugin.json'
+            //                         ]);
+            //                         for (let file of files) {
+            //                             this.addWatchFile(file);
+            //                         }
+            //                     }
+            //                 }
+            //             ] : [
+            //                 zipPack({
+            //                     inDir: './dist',
+            //                     outDir: './',
+            //                     outFileName: 'package.zip'
+            //                 })
+            //             ]
+            //         )
+            //     ],
 
             // make sure to externalize deps that shouldn't be bundled
             // into your library
             external: ["require", "process"],
 
-            output: {
-                entryFileNames: "[name].js",
-            },
+            // output: {
+            //     entryFileNames: "[name].js",
+            // },
         },
     }
 })

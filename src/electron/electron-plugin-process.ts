@@ -7,9 +7,9 @@ export class ElectronPluginProcess implements PluginProcess {
 
     private running: boolean;
 
-    private name: string;
+    private readonly name: string;
 
-    constructor(param: string | any, private onRemove: () => void) {
+    constructor(param: string | any, private readonly onRemove: () => void) {
       if (typeof param === 'string') {
         this.name = param;
         this.running = false;
@@ -27,7 +27,7 @@ export class ElectronPluginProcess implements PluginProcess {
       }
     }
 
-    run(script: string) {
+    run() {
         const htmlContent = (`
       <!DOCTYPE html>
       <html>
@@ -90,7 +90,7 @@ export class ElectronPluginProcess implements PluginProcess {
           (function(b) {
             let require = (name) => {
               switch(name) {
-                case 'siyuan-backend-plugin': return packages;
+                case 'siyuan-background': return packages;
                 default: return _require(name);
               }
             }
@@ -112,10 +112,15 @@ export class ElectronPluginProcess implements PluginProcess {
             });
           })(bridge);
 
-          (function(require) {
-            ${script}
-          })(obj.require);
-          
+          fetch('${window.location.protocol}//${window.location.host}/api/file/getFile', {
+            method: 'POST',
+            body: JSON.stringify({ path: '/data/plugins/${this.name}/process.js' }),
+          }).then((data) => data.text())
+          .then((script) => {
+            (function(require) {
+              eval(script)
+            })(obj.require);
+          })     
           </script>
         </body>
       </html>
@@ -125,7 +130,7 @@ export class ElectronPluginProcess implements PluginProcess {
         const remote = window.require('@electron/remote');
         this.win = new remote.BrowserWindow({
             skipTaskbar: true,
-            show: false,
+            show: true,
             title: this.name,
             webPreferences: {
                 devTools: true,

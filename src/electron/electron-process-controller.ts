@@ -1,7 +1,7 @@
 import { debug } from "@/utils/console";
-import { PluginProcess, ProcessController } from "../../types/plugin";
+import { PluginProcess, ProcessController } from "@/types/plugin";
 import { ElectronPluginProcess } from './electron-plugin-process';
-import { ProcessManager } from "../manager";
+import { ProcessManager } from "@/manager";
 
 export class ElectronProcessController implements ProcessController {
     processes: Map<string, ElectronPluginProcess>;
@@ -11,7 +11,7 @@ export class ElectronProcessController implements ProcessController {
     manager: ProcessManager;
 
     constructor(manager: ProcessManager) {
-        this.processes = new Map(); 2
+        this.processes = new Map();
         this.ports = new Map();
         this.restore();
         this.initCommunication();
@@ -34,18 +34,18 @@ export class ElectronProcessController implements ProcessController {
         return this.ports.get(name);
     }
 
-    load(pluginName: string, script: string) {
+    load(pluginName: string) {
         const process = new ElectronPluginProcess(pluginName, () => this.unload(pluginName));
-        process.run(script);
+        process.run();
         process.setParentWindow(this.currentWindow);
         this.processes.set(pluginName, process);
         this.connect(pluginName);
         debug(process);
     }
 
-    reload(plugin: string, script: string) {
+    reload(plugin: string) {
         this.unload(plugin);
-        this.load(plugin, script);
+        this.load(plugin);
     }
 
     unload(plugin: string) {
@@ -62,6 +62,7 @@ export class ElectronProcessController implements ProcessController {
         const remote = require('@electron/remote');
         this.currentWindow = remote.getCurrentWindow();
         const children: any[] = this.currentWindow.getChildWindows();
+        console.log(children)
         debug("electron process controller restored:", children);
         children.forEach((b) => {
             const title = b.title;
