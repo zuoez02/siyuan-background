@@ -110,6 +110,23 @@ bridge.on("disconnect", () => {
 });
 ```
 
+## Plugin template using vite
+
+If you are using the plugin template by siyuan which contain vite, you can try to add code to generate `process.js`.
+
+You need to add a `process.ts` in `src/` folder.
+
+```js
+// vite.config.js
+
+// add process.ts entry
+    lib: {
+            entry: [resolve(__dirname, "src/index.ts"), resolve(__dirname, 'src/process.ts')],
+            fileName: "index",
+            formats: ["cjs"],
+    },
+```
+
 ## Changelog
 
 - v0.1.0: First version, migrate from siyuan-plugin-backend.
