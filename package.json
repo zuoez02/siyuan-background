@@ -1,0 +1,20 @@
+{
+  "name": "siyuan-background",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "vite build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "vite": "^6.3.5",
+    "wait-finish": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "siyuan": "^1.1.1"
+  }
+}
