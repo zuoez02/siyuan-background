@@ -7,10 +7,11 @@ export interface ProcessController {
     unload(name: string);
     reload(name: string, script: string);
     unloadAll();
+    setShowWindow(show: boolean)
 }
 
 export interface PluginProcess {
-    run(script: string);
+    run(show?: boolean);
     destroy();
     getId();
     setId(id: number);

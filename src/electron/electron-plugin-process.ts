@@ -27,7 +27,7 @@ export class ElectronPluginProcess implements PluginProcess {
       }
     }
 
-    run() {
+    run(show: boolean = false) {
         const htmlContent = (`
       <!DOCTYPE html>
       <html>
@@ -105,6 +105,19 @@ export class ElectronPluginProcess implements PluginProcess {
               port.onmessage = (e) => {
                 b.onmessage && b.onmessage(e.data);
               }
+
+              fetch('${window.location.protocol}//${window.location.host}/api/file/getFile', {
+                method: 'POST',
+                body: JSON.stringify({ path: '/data/plugins/${this.name}/process.js' }),
+              }).then((data) => data.text())
+              .then((script) => {
+                (function(require) {
+                  eval(script)
+
+                  const { bridge } = require('siyuan-background');
+                  bridge.onconnect();
+                })(obj.require);
+              })
             });
             ipcRenderer.on('disconnect', async (event, args) => {
               port = undefined;
@@ -112,15 +125,7 @@ export class ElectronPluginProcess implements PluginProcess {
             });
           })(bridge);
 
-          fetch('${window.location.protocol}//${window.location.host}/api/file/getFile', {
-            method: 'POST',
-            body: JSON.stringify({ path: '/data/plugins/${this.name}/process.js' }),
-          }).then((data) => data.text())
-          .then((script) => {
-            (function(require) {
-              eval(script)
-            })(obj.require);
-          })     
+               
           </script>
         </body>
       </html>
@@ -130,7 +135,7 @@ export class ElectronPluginProcess implements PluginProcess {
         const remote = window.require('@electron/remote');
         this.win = new remote.BrowserWindow({
             skipTaskbar: true,
-            show: true,
+            show: show,
             title: this.name,
             webPreferences: {
                 devTools: true,

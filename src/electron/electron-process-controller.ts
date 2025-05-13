@@ -10,12 +10,16 @@ export class ElectronProcessController implements ProcessController {
     cacheCallbacks: Map<string, any> = new Map();
     manager: ProcessManager;
 
-    constructor(manager: ProcessManager) {
+    constructor(manager: ProcessManager, private showWindow: boolean = false) {
         this.processes = new Map();
         this.ports = new Map();
         this.restore();
         this.initCommunication();
         this.manager = manager;
+    }
+
+    setShowWindow(show: boolean) {
+        this.showWindow = show;
     }
 
     has(name: string) {
@@ -36,7 +40,7 @@ export class ElectronProcessController implements ProcessController {
 
     load(pluginName: string) {
         const process = new ElectronPluginProcess(pluginName, () => this.unload(pluginName));
-        process.run();
+        process.run(this.showWindow);
         process.setParentWindow(this.currentWindow);
         this.processes.set(pluginName, process);
         this.connect(pluginName);
@@ -62,7 +66,6 @@ export class ElectronProcessController implements ProcessController {
         const remote = require('@electron/remote');
         this.currentWindow = remote.getCurrentWindow();
         const children: any[] = this.currentWindow.getChildWindows();
-        console.log(children)
         debug("electron process controller restored:", children);
         children.forEach((b) => {
             const title = b.title;

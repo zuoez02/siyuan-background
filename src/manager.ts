@@ -3,12 +3,7 @@ import { ElectronProcessController } from "./electron/electron-process-controlle
 import { ElectronCommunicationHandler } from "./electron/electron-communication-handler";
 import { debug } from "@/utils/console";
 import { ElectronProcessLogger } from "./electron/electron-process-logger";
-import exp from 'wait-finish';
 import { Plugin } from 'siyuan';
-
-const { finish } = exp;
-
-const HANDLER_PREFIX = 'backend-handler_';
 
 export class ProcessManager {
     processController: ProcessController;
@@ -79,24 +74,24 @@ export class ProcessManager {
         })
     }
 
-    async init(type: 'electron' | 'node') {
+    async init(type: 'electron' | 'node', showWindow = false) {
         if (type === 'electron') {
-            await this.initElectron();
+            return await this.initElectron(showWindow);
         }
+        throw Error('init type: ' + type + ' not supported');
     }
 
-    async initElectron() {
+    async initElectron(showWindow: boolean) {
         const _this = this;
         try {
             require('@electron/remote');
             this.processController = new ElectronProcessController(this);
+            this.processController.setShowWindow(showWindow);
             debug('load electron controller');
         } catch (e) {
             console.error('load electron failed', e);
             return;
         }
-
-        console.log(this.processController)
 
         if (this.processController) {
             const runningProcesses = this.processController.getProcesses();
@@ -116,7 +111,6 @@ export class ProcessManager {
                 if (script) {
                     this.backendPlugins.push({ name: plugin.name, running: true, enabled: true })
                     debug("[initElectron] load:", plugin.name);
-                    console.log(script, plugin.name)
                     this.processController.load(plugin.name, script);
                 }
             }
@@ -135,7 +129,6 @@ export class ProcessManager {
                 }
             }
             plugin.handler = pluginHandler;
-            finish(HANDLER_PREFIX + plugin.name, pluginHandler);
             handler.listenToProcess(plugin.name, (event) => {
                 const data = event.data;
                 const type = data.slice(0, 2);
@@ -164,6 +157,7 @@ export class ProcessManager {
                     (p.eventBus as any).emit('backend-plugin-log', data.slice(2));
                 }
             });
+            return pluginHandler;
         }
     }
 

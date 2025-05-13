@@ -6,22 +6,19 @@
   "repository": {
     "url": "https://github.com/zuoez02/siyuan-background"
   },
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "",
   "type": "module",
   "main": "./dist/siyuan-background.cjs.js",
   "module": "./dist/siyuan-background.es.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "siyuan-background": "link:",
-    "wait-finish": "^1.1.1"
-  },
+  "keywords": ["siyuan", "electron"],
+  "author": "zuoez02@outlook.com",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.15.17",
     "siyuan": "^1.1.1",
@@ -31,6 +28,7 @@
   "files": [
     "dist",
     "package.json",
-    "README.md"
+    "README.md",
+    "index.d.ts"
   ]
 }
